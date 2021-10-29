@@ -1,16 +1,21 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraController : MonoBehaviour
+namespace GeekBrains
 {
-
-    [SerializeField] private Player _player;
-    [SerializeField] private float _xOffset, _yOffset, _zOffset;
-
-    private void Update()
+    public class CameraController : MonoBehaviour
     {
-        transform.position = _player.transform.position + new Vector3(_xOffset, _yOffset, _zOffset);
-        transform.LookAt(_player.transform.position);
+
+        [SerializeField] private Player _player;
+
+        [SerializeField] private float _xOffset;
+        [SerializeField] private float _yOffset;
+        [SerializeField] private float _zOffset;
+
+        private void Update()
+        {
+            transform.position = _player.transform.position + new Vector3(_xOffset, _yOffset, _zOffset);
+            transform.LookAt(_player.transform.position);
+        }
     }
 }
+
