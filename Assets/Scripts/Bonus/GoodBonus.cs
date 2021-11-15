@@ -1,28 +1,58 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using static UnityEngine.Random;
 
 namespace GeekBrains
 {
-    public sealed class GoodBonus : InteractiveBaseClass, IFlay, IRotation
+    public sealed class GoodBonus : InteractiveBaseClass, IFlay, IRotation, IFlicker
     {
-        LevelManager _manager;
+        private PlayerBase _player;
+        private Material _material;
+
+        public event Action<int> OnPointChange = delegate (int i) { };
 
         [Header("Bonus Ball")]
-        [SerializeField] private float _speedBall = 1f;
+        [SerializeField, Range(1, 10)] private float _speedBall = 1f;
 
+        public int _point;
         private float _speedRotate;
         private float _lengthFlay;
 
-        private int _blockCount = 0;
-
         private void Awake()
         {
-            _lengthFlay = Random.Range(1f, 5f);
-            _speedRotate = Random.Range(10f, 50f);
+            _material = GetComponent<Renderer>().material;
 
-            _manager = new LevelManager();
+            _lengthFlay = Range(1f, 5f);
+            _speedRotate = Range(5f, 10f);
+        }
+
+        private void Start()
+        {
+            _player = FindObjectOfType<PlayerBase>(); //Затратно
+        }
+
+        protected override void Interaction() //Add bonus
+        {
+            _player._speedBase += _speedBall;
+            OnPointChange.Invoke(_point);
+        }
+
+        public override void Execute()
+        {
+            if (!IsInteractable)
+            {
+                return;
+            }
+
+            Flay();
+            Flicker();
+            Rotate();
+        }
+
+
+        public void Flicker()
+        {
+            _material.color = new Color(_material.color.r, _material.color.g, _material.color.b, Mathf.PingPong(Time.time, 1f));
         }
 
         public void Flay()
@@ -35,18 +65,6 @@ namespace GeekBrains
             transform.Rotate(Vector3.up * _speedRotate * Time.deltaTime);
         }
 
-        protected override void Interaction()
-        {
-            //Add bonus
-            Player.Instance._speed += _speedBall;
-
-            _blockCount++;
-            if(_blockCount >= 2)
-            {
-                _manager.Display(1);
-                SceneManager.LoadScene(0);
-            }
-        }
 
     }
 }
